@@ -68,23 +68,12 @@ int main(int argc, char *argv[])
 
 		total = cont;
 
-		MPI_Request* requests = (MPI_Request*) malloc(sizeof(MPI_Request) * num_procs);
-		int* counts = (int*) malloc(sizeof(int) * num_procs);
-
 		for (origem = 1; origem < num_procs; origem++)
 		{
-			/* Operação não bloqueante - não fica bloqueado até que a mensagem seja recebida*/
-			MPI_Irecv(&counts[origem], 1, MPI_INT, origem, etiq, MPI_COMM_WORLD, &requests[origem]);
+			/* Operação bloqueante/síncrona  - fica bloqueado até que a mensagem seja recebida*/
+			MPI_Recv(&cont, 1, MPI_INT, origem, etiq, MPI_COMM_WORLD, &estado);
+			total += cont;
 		}
-
-		for (origem = 1; origem < num_procs; origem++)
-		{
-			MPI_Wait(&requests[origem], MPI_STATUS_IGNORE);
-			total += counts[origem];
-		}
-
-		free(requests);
-		free(counts);
 
 		total += 1; /* Acrescenta o dois, que também é primo */
 
